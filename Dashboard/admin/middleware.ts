@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
   // Get the token from cookies
   const token = request.cookies.get('token')?.value
 
-  const isPublicPath = path === '/login' || path === '/register'
+  const isPublicPath = path === '/' || path === '/login' || path === '/register'
 
   if (!token && !isPublicPath) {
     // Redirect to login if trying to access protected route without token
