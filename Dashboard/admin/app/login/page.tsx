@@ -5,15 +5,54 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
 
+type UserRole = "admin" | "zonal-head" | "driver";
+
+const demoCredentials: Array<{
+  role: UserRole;
+  label: string;
+  email: string;
+  password: string;
+  path: string;
+}> = [
+  {
+    role: "admin",
+    label: "Admin",
+    email: "demo.admin@trashcam.com",
+    password: "Demo@123",
+    path: "/admin",
+  },
+  {
+    role: "zonal-head",
+    label: "Zonal Head",
+    email: "demo.zonal@trashcam.com",
+    password: "Demo@123",
+    path: "/zonal-head",
+  },
+  {
+    role: "driver",
+    label: "Driver",
+    email: "demo.driver@trashcam.com",
+    password: "Demo@123",
+    path: "/driver",
+  },
+];
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "zonal-head" | "driver">("admin");
+  const [role, setRole] = useState<UserRole>("admin");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const router = useRouter();
+
+  const fillDemoCredentials = (credential: (typeof demoCredentials)[number]) => {
+    setEmail(credential.email);
+    setPassword(credential.password);
+    setRole(credential.role);
+    setError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +62,19 @@ export default function Login() {
 
     try {
       console.log("Attempting login with:", { email, role });
+
+      const demoLogin = demoCredentials.find(
+        (credential) =>
+          credential.email === email.trim().toLowerCase() &&
+          credential.password === password &&
+          credential.role === role
+      );
+
+      if (demoLogin) {
+        document.cookie = `token=demo-${demoLogin.role}; path=/; max-age=${60 * 60 * 24}; samesite=lax`;
+        window.location.href = demoLogin.path;
+        return;
+      }
 
       // Special cases for test admins
       if ((email === 'simple.admin@trashcam.com' || email === 'admin2@trashcam.com') && role === 'admin') {
@@ -168,7 +220,7 @@ export default function Login() {
             <select
               value={role}
               onChange={(e) =>
-                setRole(e.target.value as "admin" | "zonal-head" | "driver")
+                setRole(e.target.value as UserRole)
               }
               className="w-full px-4 py-2 border border-[#a5d6a7] rounded-md focus:outline-none focus:ring-2 focus:ring-[#81c784] bg-white text-gray-600"
               required
@@ -177,6 +229,28 @@ export default function Login() {
               <option value="zonal-head">Zonal Head</option>
               <option value="driver">Driver</option>
             </select>
+          </div>
+
+          <div className="rounded-lg border border-[#a5d6a7] bg-[#f8fff8] p-4">
+            <p className="text-sm font-semibold text-[#1b5e20] mb-3">
+              Demo credentials for portfolio visitors
+            </p>
+            <div className="space-y-3">
+              {demoCredentials.map((credential) => (
+                <button
+                  key={credential.role}
+                  type="button"
+                  onClick={() => fillDemoCredentials(credential)}
+                  className="w-full text-left rounded-md border border-[#c8e6c9] bg-white px-3 py-2 text-sm text-gray-700 hover:border-[#81c784] hover:bg-[#f1f8e9] transition-colors"
+                >
+                  <span className="block font-semibold text-gray-900">
+                    {credential.label}
+                  </span>
+                  <span className="block">Email: {credential.email}</span>
+                  <span className="block">Password: {credential.password}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <button
