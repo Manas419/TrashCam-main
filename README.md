@@ -78,3 +78,17 @@ Manas Patil
 Email: patilmanas419@gmail.com  
 Phone: 9028015213  
 Address: Amrutvahini Collage od Enginnering
+
+## Vercel Deployment
+
+Deploy the web dashboard from `Dashboard/admin`, not from the repository root.
+
+In Vercel project settings:
+
+- Root Directory: `Dashboard/admin`
+- Framework Preset: `Next.js`
+- Install Command: `npm ci`
+- Build Command: `npm run build`
+- Output Directory: leave default
+
+If the chatbot is used, add `GEMINI_API` in Vercel Environment Variables.
