@@ -1,4 +1,4 @@
-package com.parthratra11.TrashCam
+package com.manaspatil.TrashCam
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

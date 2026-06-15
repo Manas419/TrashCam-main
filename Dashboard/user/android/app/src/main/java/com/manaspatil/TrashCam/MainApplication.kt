@@ -1,4 +1,4 @@
-package com.parthratra11.TrashCam
+package com.manaspatil.TrashCam
 
 import android.app.Application
 import android.content.res.Configuration

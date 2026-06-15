@@ -128,7 +128,7 @@ const ChatBot = () => {
         "Step 2: Tap on the location pin on the map or in the 'Location' column (small blue pin). It will open the navigation system directly.\n",
         "Step 3: Follow the route shown in blue lines to reach your destination."), Dashboard isn't updating tasks("Step 1: Check the green boxes at the top (e.g., 'Pending Reports' or 'Resolved Reports').\n",
         "Step 2: If the numbers are not changing, click the browser's refresh icon (top-left or keyboard F5). If still stuck, log out by clicking your profile picture in the top left. Log back in and check again.\n",
-        "Step 3: If still not working, report the issue by calling your supervisor (see Supervisor Contact)."), Vehicle Breakdown(Mention your current location (use GPS map for reference).), and Supervisor Contact(Bharat Singh 8764389872). Be informative yet conversational, and focus on practical solutions. Question: ${prompt}`;
+        "Step 3: If still not working, report the issue by calling your supervisor (see Supervisor Contact)."), Vehicle Breakdown(Mention your current location (use GPS map for reference).), and Supervisor Contact(Manas Patil 9028015213). Be informative yet conversational, and focus on practical solutions. Question: ${prompt}`;
 
       const result = await model.generateContent(contextPrompt);
       const response = await result.response;

@@ -69,4 +69,12 @@ The system architecture includes:
 
 ## Contact
 
-### For any questions or contributions, please reach out at [sharma15705rahul@gmail.com] [parthratra11@gmail.com].
+### Author
+
+Manas Patil
+
+### Contact
+
+Email: patilmanas419@gmail.com  
+Phone: 9028015213  
+Address: Amrutvahini Collage od Enginnering

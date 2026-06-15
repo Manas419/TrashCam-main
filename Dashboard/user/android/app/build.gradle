@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.parthratra11.TrashCam'
+    namespace 'com.manaspatil.TrashCam'
     defaultConfig {
-        applicationId 'com.parthratra11.TrashCam'
+        applicationId 'com.manaspatil.TrashCam'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

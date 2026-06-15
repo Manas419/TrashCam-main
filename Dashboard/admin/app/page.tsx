@@ -768,7 +768,7 @@ const Footer = () => {
                     Find us
                   </h4>
                   <span className="text-gray-600 text-sm">
-                    Hans Raj College, University of Delhi
+                    Amrutvahini Collage od Enginnering
                   </span>
                 </div>
               </div>
@@ -780,7 +780,7 @@ const Footer = () => {
                   <h4 className="text-gray-800 text-lg font-semibold mb-1">
                     Call us
                   </h4>
-                  <span className="text-gray-600 text-sm">+91-8586804202</span>
+                  <span className="text-gray-600 text-sm">9028015213</span>
                 </div>
               </div>
             </div>
@@ -792,7 +792,7 @@ const Footer = () => {
                     Mail us
                   </h4>
                   <span className="text-gray-600 text-sm">
-                    UrbanEco@gmail.com
+                    patilmanas419@gmail.com
                   </span>
                 </div>
               </div>
