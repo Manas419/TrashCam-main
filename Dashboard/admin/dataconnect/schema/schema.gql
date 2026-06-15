@@ -1,0 +1,48 @@
+type User @table {
+  userId: String!
+  displayName: String!
+  email: String!
+  role: String!
+  phoneNumber: String
+  photoUrl: String
+}
+
+type Bin @table {
+  binId: String!
+  locationLat: Float!
+  locationLong: Float!
+  createdAt: Timestamp!
+  status: String!
+  name: String
+  description: String
+  capacity: Int
+  lastMaintenanceDate: Timestamp
+  batteryLevel: Float
+}
+
+type SensorReading @table {
+  bin: Bin!
+  timestamp: Timestamp!
+  fillLevel: Float!
+  temperature: Float
+  humidity: Float
+  pressure: Float
+}
+
+type ImageLog @table {
+  bin: Bin!
+  timestamp: Timestamp!
+  imageUrl: String!
+  imageMetadata: String
+  detectedObjects: String
+}
+
+type Alert @table {
+  bin: Bin!
+  alertType: String!
+  timestamp: Timestamp!
+  severity: String!
+  message: String
+  resolvedBy: User
+  resolvedAt: Timestamp
+}

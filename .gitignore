@@ -1,0 +1,40 @@
+/Model/Workspace/Datasets
+/Model/Workspace/Test
+/Model/cam.py
+/Model/cam2.py
+/Model/Not-In-Use
+/Model/runs
+/Model/Maps/Heat-Map/heatMap.html
+/Model/Maps/Location-Map/locationMap.html
+/Model/myVenv
+/Dashboard/work
+/Dashboard/user2
+
+# Local environments and dependencies
+.venv/
+venv/
+**/node_modules/
+**/.expo/
+**/.next/
+**/dist/
+**/build/
+**/.gradle/
+**/.venv/
+__pycache__/
+*.py[cod]
+
+# Local editor/project files
+.idea/
+.vscode/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+Model/firebase-credentials.json
+**/*credentials*.json
+**/*serviceAccount*.json
+
+# Generated/local artifacts
+Dashboard/user/platform-tools.zip
+Dashboard/user/android/app/debug.keystore

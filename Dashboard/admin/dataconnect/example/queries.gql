@@ -1,0 +1,36 @@
+mutation CreateBin($binData: Bin_Data!) @auth(level: USER) {
+  bin_insert(data: $binData)
+}
+
+query GetBins @auth(level: USER) {
+  bins {
+    id
+    binId
+    capacity
+    locationLat
+    locationLong
+  }
+}
+
+mutation ResolveAlert($alertId: UUID!, $userId: UUID!) @auth(level: USER) {
+  alert_update(
+    id: $alertId
+    data: {
+      resolvedById: $userId
+      resolvedAt_expr: "request.time"
+    }
+  ) {
+    id
+  }
+}
+
+query GetAlertsForBin($binId: UUID!) @auth(level: USER) {
+  alerts(where: { binId: { eq: $binId } }) {
+    id
+    alertType
+    message
+    severity
+    timestamp
+    resolvedAt
+  }
+}

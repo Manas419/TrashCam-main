@@ -1,0 +1,22 @@
+mutation SeedData @auth(level: USER) {
+  bin_upsertMany(data: [
+    {
+      binId: "123",
+      capacity: 100,
+      createdAt: "2024-01-01T00:00:00Z",
+      description: "Sample bin",
+      locationLat: 37.7749,
+      locationLong: -122.4194,
+      status: "Active"
+    },
+    {
+      binId: "456",
+      capacity: 150,
+      createdAt: "2024-01-02T00:00:00Z",
+      description: "Another sample bin",
+      locationLat: 34.0522,
+      locationLong: -118.2437,
+      status: "Inactive"
+    }
+  ])
+}
