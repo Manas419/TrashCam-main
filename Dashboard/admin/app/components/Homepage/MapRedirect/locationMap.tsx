@@ -2,20 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import reports from "../../../../reports.json";
 
 const LocationMap = () => {
   const [locations, setLocations] = useState([]);
 
-  // Fetch the data from JSON file
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("/updated_drivers_with_assignments.json");
-      const data = await response.json();
-      // Assuming you want to render routes for "Central"
-      setLocations(data.Central[0].route);
-    };
-
-    fetchData();
+    setLocations(
+      reports.reports.map((report) => ({
+        lat: report.coordinates.lat,
+        lng: report.coordinates.lng,
+      }))
+    );
   }, []);
 
   return (

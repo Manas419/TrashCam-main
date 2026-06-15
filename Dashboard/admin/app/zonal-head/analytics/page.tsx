@@ -125,7 +125,7 @@ export default function Home() {
           </div>
           <div className="h-[500px] bg-gray-50 rounded-xl overflow-hidden">
             <iframe
-              src="/Maps/HeatMap.html"
+              src="/Maps/heatMap.html"
               title="Heat Map"
               className="w-full h-full border-0"
             />

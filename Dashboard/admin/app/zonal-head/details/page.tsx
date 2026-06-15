@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../components/Navbar";
+import reports from "../../../reports.json";
 
 export default function Details() {
   return (
@@ -19,14 +20,8 @@ function DetailsContent() {
   const [report, setReport] = useState(null);
 
   useEffect(() => {
-    const fetchReports = async () => {
-      const res = await fetch("/path/to/reports.json");
-      const data = await res.json();
-      const reportData = data.reports.find((r) => r.id === id);
-      setReport(reportData);
-    };
-
-    fetchReports();
+    const reportData = reports.reports.find((r) => r.id === id);
+    setReport(reportData || null);
   }, [id]);
 
   if (!report) {

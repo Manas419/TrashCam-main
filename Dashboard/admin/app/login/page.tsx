@@ -85,7 +85,7 @@ export default function Login() {
           const token = await userCredential.user.getIdToken();
           document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; samesite=lax`;
           console.log("Test admin login successful");
-          window.location.href = '/admin/dashboard';
+          window.location.href = '/admin';
           return;
         } catch (error: any) {
           console.error("Test admin login failed:", error);
@@ -133,7 +133,7 @@ export default function Login() {
           return;
         }
 
-        const userRole = userData.role.toLowerCase();
+        const userRole = userData.role.toLowerCase().replace(/\s+/g, "-");
         const expectedRole = role.toLowerCase();
 
         console.log("Checking roles:", { userRole, expectedRole });
@@ -147,9 +147,6 @@ export default function Login() {
         // Step 4: Redirect
         // Format the role to match the folder structure
         let routePath = userRole;
-        if (userRole === "zonal head") {
-          routePath = "zonal-head";
-        }
 
         const redirectPath = `/${routePath}`;
         console.log("Login successful, redirecting to:", redirectPath);

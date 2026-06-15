@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
+import reports from "../../../../reports.json";
 
 const HeatLayer = ({ points }) => {
   const map = useMap();
@@ -17,6 +18,10 @@ const HeatLayer = ({ points }) => {
       });
 
       heat.addTo(map);
+
+      return () => {
+        map.removeLayer(heat);
+      };
     }
   }, [points, map]);
 
@@ -27,19 +32,13 @@ const HeatMap = () => {
   const [heatmapData, setHeatmapData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("/updated_drivers_with_assignments.json");
-      const data = await response.json();
-
-      const points = data.Central[0].route.map((loc) => [
-        loc.lat,
-        loc.lng,
-        loc.intensity || 100,
-      ]);
-      setHeatmapData(points);
-    };
-
-    fetchData();
+    setHeatmapData(
+      reports.reports.map((report) => [
+        report.coordinates.lat,
+        report.coordinates.lng,
+        report.status === "Pending" ? 1 : 0.45,
+      ])
+    );
   }, []);
 
   return (
