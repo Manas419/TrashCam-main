@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRight,
@@ -18,6 +19,7 @@ import {
   faCircleInfo,
   faFilter,
   faMagnifyingGlass,
+  faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import UrbanEcoLogo from "../components/urbanEcoLogo";
 import SearchBox from "../components/Homepage/Header/searchBox";
@@ -29,6 +31,7 @@ import "../components/Homepage/header.css";
 import Logout from "../components/Homepage/Header/logout";
 import DistrictAnalytics from "../components/Homepage/districtAnalytics";
 import reportsJson from "../../reports.json";
+import { fetchFirestoreReports, Report } from "../utils/reports";
 
 // Dynamically import components that might use window
 const LocationMap = dynamic(
@@ -56,13 +59,15 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [liveReports, setLiveReports] = useState<Report[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
     setIsLoading(false);
+    fetchFirestoreReports().then(setLiveReports);
   }, []);
 
-  const reports = reportsJson.reports;
+  const reports = [...liveReports, ...(reportsJson.reports as Report[])];
   const pendingCount = reports.filter((r) => r.status === "Pending").length;
   const resolvedCount = reports.filter((r) => r.status === "Resolved").length;
 
@@ -144,6 +149,13 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="flex gap-3">
+              <Link
+                href="/admin/report"
+                className="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 shadow-sm"
+              >
+                <FontAwesomeIcon icon={faCamera} />
+                Report Trash
+              </Link>
               <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2">
                 <FontAwesomeIcon icon={faRotate} />
                 Refresh
