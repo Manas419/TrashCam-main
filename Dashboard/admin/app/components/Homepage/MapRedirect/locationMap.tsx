@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import reports from "../../../../reports.json";
+import { fetchFirestoreReports } from "../../../utils/reports";
 
 interface Location {
   lat: number;
@@ -16,15 +17,25 @@ const LocationMap = () => {
   const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
-    setLocations(
-      reports.reports.map((report) => ({
+    const staticLocations: Location[] = reports.reports.map((report) => ({
+      lat: report.coordinates.lat,
+      lng: report.coordinates.lng,
+      status: report.status,
+      location: report.location,
+      id: report.id,
+    }));
+    setLocations(staticLocations);
+
+    fetchFirestoreReports().then((liveReports) => {
+      const liveLocations: Location[] = liveReports.map((report) => ({
         lat: report.coordinates.lat,
         lng: report.coordinates.lng,
         status: report.status,
         location: report.location,
         id: report.id,
-      }))
-    );
+      }));
+      setLocations([...liveLocations, ...staticLocations]);
+    });
   }, []);
 
   const getMarkerColor = (status: string) => {

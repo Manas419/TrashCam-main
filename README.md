@@ -92,3 +92,22 @@ In Vercel project settings:
 - Output Directory: leave default
 
 If the chatbot is used, add `GEMINI_API` in Vercel Environment Variables.
+
+## Web Reporting (Detect & Report Trash)
+
+Logged-in users can report trash directly from the web dashboard at
+`/admin/report`:
+
+1. Take or upload a photo.
+2. Capture the location (GPS, with reverse geocoding to an address).
+3. Run AI detection — the photo is sent to the **detection service**
+   (`Model/detect_api.py`) which wraps the trained YOLO model and returns an
+   annotated preview plus a confidence score.
+4. Submit — the report is saved to the Firestore `reports` collection and shows
+   up in the dashboard list and on the hotspot map.
+
+The model is Python/PyTorch and cannot run inside Next.js / Vercel, so the
+detection service runs as a separate process. See
+[`Model/README_DETECT_API.md`](Model/README_DETECT_API.md) to run it, and set
+`NEXT_PUBLIC_DETECT_API_URL` in `Dashboard/admin` (see `.env.example`) to its
+URL.

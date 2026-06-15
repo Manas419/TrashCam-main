@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import reports from "../../../reports.json";
 import Navbar from "@/app/zonal-head/components/Navbar";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../../firebaseConfig";
+import { Report } from "../../utils/reports";
 
 export default function Details() {
   return (
@@ -18,7 +21,34 @@ function DetailsContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-  const report = reports.reports.find((r) => r.id === id);
+  const staticReport = reports.reports.find((r) => r.id === id) as
+    | Report
+    | undefined;
+  const [report, setReport] = useState<Report | null>(staticReport ?? null);
+  const [loading, setLoading] = useState(!staticReport && !!id);
+
+  useEffect(() => {
+    if (staticReport || !id) return;
+    setLoading(true);
+    getDoc(doc(db, "reports", id))
+      .then((snap) => {
+        if (snap.exists()) {
+          setReport({ id: snap.id, ...(snap.data() as Omit<Report, "id">) });
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [id, staticReport]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef]">
+        <Navbar />
+        <div className="max-w-4xl mx-auto p-8 text-center text-gray-600">
+          Loading report...
+        </div>
+      </div>
+    );
+  }
 
   if (!report) {
     return (
