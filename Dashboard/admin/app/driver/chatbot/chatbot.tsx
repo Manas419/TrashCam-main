@@ -1,23 +1,21 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  FaMessage,
-  FaArrowRight,
   FaArrowLeft,
+  FaArrowRight,
+  FaMessage,
   FaMicrophone,
   FaMicrophoneSlash,
 } from "react-icons/fa6";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface ChatMessage {
   text: string;
   isUser: boolean;
-  timestamp: Date;
 }
 
 declare global {
   interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
+    SpeechRecognition?: new () => SpeechRecognition;
+    webkitSpeechRecognition?: new () => SpeechRecognition;
   }
 }
 
@@ -28,7 +26,7 @@ interface SpeechRecognition {
   start(): void;
   stop(): void;
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onerror: (() => void) | null;
   onend: (() => void) | null;
 }
 
@@ -36,41 +34,96 @@ interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
+const quickReplies = [
+  "How do I use the route map?",
+  "How do I mark a report resolved?",
+  "Who should I contact?",
+];
+
+const getDemoResponse = (prompt: string) => {
+  const question = prompt.toLowerCase();
+
+  if (question.includes("route") || question.includes("map") || question.includes("gps")) {
+    return "Use the route map on the driver dashboard to view the assigned route. You can also click any location in the report table to open that exact point in Google Maps.";
+  }
+
+  if (question.includes("resolved") || question.includes("complete") || question.includes("done")) {
+    return "To mark work as complete, use the Resolved checkbox in the report table. The dashboard counters update instantly for this demo session.";
+  }
+
+  if (question.includes("invalid") || question.includes("wrong")) {
+    return "If a report is incorrect, use the Invalid checkbox. This helps separate genuine waste reports from duplicate or incorrect submissions.";
+  }
+
+  if (question.includes("contact") || question.includes("supervisor") || question.includes("help")) {
+    return "For help, contact Manas Patil at 9028015213. Share your current location, vehicle number, and the report ID.";
+  }
+
+  if (question.includes("vehicle") || question.includes("breakdown")) {
+    return "If the vehicle has a breakdown, stop safely, note your current location from the map, and contact Manas Patil at 9028015213 with the vehicle number.";
+  }
+
+  return "I can help with route map usage, report status updates, invalid reports, vehicle breakdowns, and supervisor contact details. For urgent help, call Manas Patil at 9028015213.";
+};
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      text: "Hi, I am the driver help assistant. Ask me about routes, reports, or supervisor contact.",
+      isUser: false,
+    },
+  ]);
   const [inputText, setInputText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [language, setLanguage] = useState<"english" | "hindi" | null>(null);
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
-    null
-  );
+
+  const recognition = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) return null;
+
+    const instance = new SpeechRecognitionAPI();
+    instance.continuous = false;
+    instance.interimResults = true;
+    instance.lang = "en-US";
+    return instance;
+  }, []);
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      (window.SpeechRecognition || window.webkitSpeechRecognition)
-    ) {
-      const SpeechRecognitionAPI =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognitionAPI();
-      recognitionInstance.continuous = true;
-      recognitionInstance.interimResults = true;
+    if (!recognition) return;
 
-      if (language === "hindi") {
-        recognitionInstance.lang = "hi-IN";
-      } else {
-        recognitionInstance.lang = "en-US";
-      }
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join("");
 
-      setRecognition(recognitionInstance);
-    }
-  }, [language]);
+      setInputText(transcript);
+    };
+
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+
+    return () => recognition.stop();
+  }, [recognition]);
+
+  const sendMessage = (message: string) => {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) return;
+
+    setMessages((prev) => [
+      ...prev,
+      { text: trimmedMessage, isUser: true },
+      { text: getDemoResponse(trimmedMessage), isUser: false },
+    ]);
+    setInputText("");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(inputText);
+  };
 
   const toggleListening = () => {
     if (!recognition) return;
@@ -78,223 +131,116 @@ const ChatBot = () => {
     if (isListening) {
       recognition.stop();
       setIsListening(false);
-    } else {
-      recognition.start();
-      setIsListening(true);
+      return;
     }
-  };
 
-  useEffect(() => {
-    if (!recognition) return;
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0])
-        .map((result) => result.transcript)
-        .join("");
-
-      setInputText(transcript);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("Speech recognition error:", event.error);
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    return () => {
-      recognition.stop();
-    };
-  }, [recognition]);
-
-  // Initialize Gemini API
-  const genAI = new GoogleGenerativeAI(
-    process.env.GEMINI_API //API KEY
-  );
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-  const generateResponse = async (prompt: string) => {
-    try {
-      setIsLoading(true);
-
-      // Fallback to Gemini API if no predefined response
-      const contextPrompt =
-        language === "hindi"
-          ? `आप एक बुद्धिमान कचरा प्रबंधन और रिपोर्टिंग कंपनी के विशेषज्ञ चैटबॉट हैं। आप पहचान, रिपोर्टिंग और निगरानी प्रथाओं में विशेषज्ञ हैं। कृपया GPS सिस्टम का उपयोग करने के निर्देश ("चरण 1: अपने डैशबोर्ड के दाईं ओर मैप देखें (रंग: नीली मार्ग)।\n", "चरण 2: मैप पर या 'स्थान' कॉलम में स्थान पिन पर टैप करें (छोटा नीला पिन)। यह सीधे नेविगेशन सिस्टम खोलेगा।\n", "चरण 3: अपने गंतव्य तक पहुंचने के लिए नीली रेखाओं में दिखाए गए मार्ग का पालन करें।"), डैशबोर्ड टास्क अपडेट नहीं हो रहे हैं ("चरण 1: ऊपर की ओर हरे बॉक्स देखें (जैसे, 'लंबित रिपोर्ट' या 'समाधान की गई रिपोर्ट')।\n", "चरण 2: यदि संख्याएं नहीं बदल रही हैं, तो ब्राउज़र के रीफ्रेश आइकन पर क्लिक करें (शीर्ष-बाएं या कीबोर्ड F5)। यदि अभी भी फंसा हुआ है, तो शीर्ष बाएं में अपनी प्रोफ़ाइल तस्वीर पर क्लिक करके लॉग आउट करें। फिर से लॉग इन करें और जांचें।\n", "चरण 3: यदि अभी भी काम नहीं कर रहा है, तो अपने पर्यवेक्षक को कॉल करके समस्या की रिपोर्ट करें (पर्यवेक्षक संपर्क देखें)।"), वाहन खराबी (संदर्भ के लिए GPS मैप का उपयोग करके अपना वर्तमान स्थान बताएं।), और पर्यवेक्षक संपर्क (भरत सिंह 8764389872) के बारे में विस्तृत जानकारी प्रदान करें। जानकारीपूर्ण लेकिन संवादात्मक रहें, और व्यावहारिक समाधानों पर ध्यान दें। प्रश्न: ${prompt}`
-          : `You are an expert chatbot for a intelligent waste management and reporting company. You specialize in detection, reporting, and monitoring practices. Please provide detailed, Instructions on using the GPS system("Step 1: Look at the map on the right side of your dashboard (color: blue routes).\n",
-        "Step 2: Tap on the location pin on the map or in the 'Location' column (small blue pin). It will open the navigation system directly.\n",
-        "Step 3: Follow the route shown in blue lines to reach your destination."), Dashboard isn't updating tasks("Step 1: Check the green boxes at the top (e.g., 'Pending Reports' or 'Resolved Reports').\n",
-        "Step 2: If the numbers are not changing, click the browser's refresh icon (top-left or keyboard F5). If still stuck, log out by clicking your profile picture in the top left. Log back in and check again.\n",
-        "Step 3: If still not working, report the issue by calling your supervisor (see Supervisor Contact)."), Vehicle Breakdown(Mention your current location (use GPS map for reference).), and Supervisor Contact(Manas Patil 9028015213). Be informative yet conversational, and focus on practical solutions. Question: ${prompt}`;
-
-      const result = await model.generateContent(contextPrompt);
-      const response = await result.response;
-      const text = response.text();
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: prompt,
-          isUser: true,
-          timestamp: new Date(),
-        },
-        {
-          text,
-          isUser: false,
-          timestamp: new Date(),
-        },
-      ]);
-
-      setInputText("");
-    } catch (error) {
-      console.error("Error generating response:", error);
-      const errorMsg =
-        language === "hindi"
-          ? "माफ़ कीजिये, एक त्रुटि हुई। कृपया पुनः प्रयास करें।"
-          : "Sorry, there was an error. Please try again.";
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: errorMsg,
-          isUser: false,
-          timestamp: new Date(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputText.trim()) {
-      generateResponse(inputText);
-    }
-  };
-
-  const handleBack = () => {
-    if (messages.length > 0) {
-      setMessages([]);
-    } else if (language) {
-      setLanguage(null);
-    }
+    recognition.start();
+    setIsListening(true);
   };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl w-80 mb-4 overflow-hidden">
+        <div className="mb-4 w-80 overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200">
           <div className="bg-[#2e7d32] p-4">
-            <div className="flex justify-between items-center mb-4">
-              {(language || messages.length > 0) && (
-                <button
-                  onClick={handleBack}
-                  className="text-white hover:text-gray-200 transition-colors"
-                  aria-label="Go back"
-                >
-                  <FaArrowLeft size={16} />
-                </button>
-              )}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() =>
+                  setMessages([
+                    {
+                      text: "Hi, I am the driver help assistant. Ask me about routes, reports, or supervisor contact.",
+                      isUser: false,
+                    },
+                  ])
+                }
+                className="text-white hover:text-gray-200 transition-colors"
+                aria-label="Reset chat"
+              >
+                <FaArrowLeft size={16} />
+              </button>
               <h3 className="text-lg font-semibold text-white">
-                Ask Zonal Head
+                Driver Help
               </h3>
+              <span className="w-4" />
             </div>
-            {!language ? (
-              <div className="flex flex-col gap-2 mt-4">
-                <button
-                  onClick={() => setLanguage("english")}
-                  className="py-2 px-4 bg-white text-[#2e7d32] rounded font-medium hover:bg-gray-100 transition-colors"
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => setLanguage("hindi")}
-                  className="py-2 px-4 bg-white text-[#2e7d32] rounded font-medium hover:bg-gray-100 transition-colors"
-                >
-                  हिंदी
-                </button>
-              </div>
-            ) : (
-              <div className="max-h-96 overflow-y-auto mt-4">
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`mb-2 ${
-                      msg.isUser ? "text-right" : "text-left"
-                    }`}
-                  >
-                    <div
-                      className={`inline-block p-2 rounded-lg ${
-                        msg.isUser
-                          ? "bg-green-100 text-gray-900"
-                          : "bg-gray-100 text-gray-900"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="text-center text-gray-500">
-                    {language === "hindi" ? "प्रतीक्षा करें..." : "Loading..."}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
-          {language && (
-            <form onSubmit={handleSubmit} className="p-4 border-t">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={
-                    language === "hindi"
-                      ? "अपना संदेश टाइप करें..."
-                      : "Type your message..."
-                  }
-                  className="flex-1 p-2 border rounded text-gray-900"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={toggleListening}
-                  className={`p-2 rounded ${
-                    isListening
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-[#2e7d32] hover:bg-[#1b5e20]"
-                  } text-white transition-colors`}
-                  disabled={!recognition}
+          <div className="max-h-80 overflow-y-auto p-4 bg-gray-50">
+            {messages.map((msg, idx) => (
+              <div
+                key={`${msg.text}-${idx}`}
+                className={`mb-3 ${msg.isUser ? "text-right" : "text-left"}`}
+              >
+                <div
+                  className={`inline-block max-w-[90%] rounded-lg p-3 text-sm leading-relaxed ${
+                    msg.isUser
+                      ? "bg-[#2e7d32] text-white"
+                      : "bg-white text-gray-800 border border-gray-200"
+                  }`}
                 >
-                  {isListening ? (
-                    <FaMicrophoneSlash size={20} />
-                  ) : (
-                    <FaMicrophone size={20} />
-                  )}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-[#2e7d32] text-white px-4 rounded hover:bg-[#1b5e20] disabled:opacity-50"
-                >
-                  <FaArrowRight />
-                </button>
+                  {msg.text}
+                </div>
               </div>
-            </form>
-          )}
+            ))}
+          </div>
+
+          <div className="px-4 pb-2 bg-white">
+            <div className="flex flex-wrap gap-2">
+              {quickReplies.map((reply) => (
+                <button
+                  key={reply}
+                  type="button"
+                  onClick={() => sendMessage(reply)}
+                  className="rounded-full border border-[#a5d6a7] px-3 py-1 text-xs text-[#1b5e20] hover:bg-[#f1f8e9]"
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Type your message..."
+                className="min-w-0 flex-1 rounded border border-gray-300 p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#81c784]"
+              />
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`rounded p-2 text-white transition-colors ${
+                  isListening
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-[#2e7d32] hover:bg-[#1b5e20]"
+                }`}
+                disabled={!recognition}
+                aria-label="Use voice input"
+              >
+                {isListening ? (
+                  <FaMicrophoneSlash size={18} />
+                ) : (
+                  <FaMicrophone size={18} />
+                )}
+              </button>
+              <button
+                type="submit"
+                className="rounded bg-[#2e7d32] px-3 text-white hover:bg-[#1b5e20]"
+                aria-label="Send message"
+              >
+                <FaArrowRight />
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-[#2e7d32] hover:bg-[#1b5e20] text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors"
-        aria-label="Ask Zonal Head"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2e7d32] text-white shadow-lg transition-colors hover:bg-[#1b5e20]"
+        aria-label="Open driver help chat"
       >
         <FaMessage size={20} />
       </button>
