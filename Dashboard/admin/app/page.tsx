@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { FaGithub, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 
 const Navbar = () => {
   const router = useRouter();
@@ -674,28 +675,41 @@ const Footer = () => {
                 solutions that detect, report, and monitor waste in real-time,
                 fostering cleaner, more livable cities for future generations.
               </p>
+              <p className="text-gray-600 text-sm mb-4">
+                Portfolio project by Manas Patil, focused on practical AI and
+                smart-city tools for cleaner urban spaces.
+              </p>
               <div>
                 <span className="text-gray-800 text-lg font-bold mb-3 block">
                   Follow us
                 </span>
                 <div className="flex space-x-3">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/manas_patil4192/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open Manas Patil on Instagram"
                     className="bg-emerald-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-700 transition-colors"
                   >
-                    <span className="text-white text-sm">f</span>
+                    <FaInstagram className="text-white text-lg" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.linkedin.com/in/manas-patil-2865a127b"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open Manas Patil on LinkedIn"
                     className="bg-emerald-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-700 transition-colors"
                   >
-                    <span className="text-white text-sm">t</span>
+                    <FaLinkedinIn className="text-white text-lg" />
                   </a>
                   <a
-                    href="#"
+                    href="https://github.com/Manas419"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open Manas Patil on GitHub"
                     className="bg-emerald-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-700 transition-colors"
                   >
-                    <span className="text-white text-sm">g+</span>
+                    <FaGithub className="text-white text-lg" />
                   </a>
                 </div>
               </div>
@@ -737,6 +751,36 @@ const Footer = () => {
                   >
                     Contact
                   </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/Manas419"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 text-sm hover:text-emerald-600 transition-colors relative after:absolute after:bottom-0 after:left-0 after:bg-emerald-600 after:h-0.5 after:w-0 hover:after:w-full after:transition-all after:duration-300"
+                  >
+                    GitHub
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.linkedin.com/in/manas-patil-2865a127b"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 text-sm hover:text-emerald-600 transition-colors relative after:absolute after:bottom-0 after:left-0 after:bg-emerald-600 after:h-0.5 after:w-0 hover:after:w-full after:transition-all after:duration-300"
+                  >
+                    LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.instagram.com/manas_patil4192/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 text-sm hover:text-emerald-600 transition-colors relative after:absolute after:bottom-0 after:left-0 after:bg-emerald-600 after:h-0.5 after:w-0 hover:after:w-full after:transition-all after:duration-300"
+                  >
+                    Instagram
+                  </a>
                 </li>
               </ul>
             </div>
