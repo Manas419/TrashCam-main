@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import reports from "../../../reports.json";
 import Navbar from "@/app/zonal-head/components/Navbar";
 import { Suspense } from "react";
-// import Navbar from "../components/Navbar";
 
 export default function Details() {
   return (
@@ -31,7 +30,7 @@ function DetailsContent() {
               Report Not Found
             </h1>
             <p className="text-gray-600">
-              The report you&apos;re looking for could not be found.
+              The report you're looking for could not be found.
             </p>
           </div>
         </div>
@@ -155,7 +154,9 @@ function DetailsContent() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-700 font-semibold">Driver:</span>
-                  <span className="text-gray-600">Rakesh Kumar</span>
+                  <span className="text-gray-600">
+                    {report.assignedDriver}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-700 font-semibold">Vehicle:</span>
@@ -210,7 +211,7 @@ function DetailsContent() {
             </div>
 
             {/* Image Display */}
-            {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <svg
                   className="h-5 w-5"
@@ -235,7 +236,7 @@ function DetailsContent() {
                   className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>

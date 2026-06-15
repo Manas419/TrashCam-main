@@ -6,12 +6,16 @@ import {
   faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
 
-const IndividualReportDetails = () => {
+interface Props {
+  reportId?: string;
+}
+
+const IndividualReportDetails = ({ reportId }: Props) => {
   return (
     <div>
       <FontAwesomeIcon icon={faLocationDot} color="#62280B" />
       <Link
-        href="../details"
+        href={reportId ? `/admin/details?id=${reportId}` : "/admin/details"}
         className="mx-2 px-2 text-xs font-semibold hover:underline justify-center"
       >
         Details
